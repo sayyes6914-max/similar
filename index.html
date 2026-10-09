@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>루브르 피라미드와 석가탑 ― 닮음비 탐구 | Pyramide du Louvre et Seokgatap</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        louvre: {
+                            glass: '#38bdf8',
+                            gold: '#fbbf24',
+                            dark: '#0f172a',
+                            border: '#1e293b'
+                        },
+                        seokga: {
+                            granite: '#cbd5e1',
+                            amber: '#f59e0b',
+                            roof: '#64748b',
+                            accent: '#10b981'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: #090d16;
+            color: #f8fafc;
+        }
+        .fr-text {
+            color: #94a3b8;
+            font-style: italic;
+        }
+        canvas {
+            touch-action: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-900">
+
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="flex text-2xl gap-1">
+                    <span>🇫🇷</span>
+                    <span>🇰🇷</span>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
+                        루브르 피라미드와 석가탑 ― 닮음비와 비례의 수학
+                    </h1>
+                    <p class="fr-text text-xs sm:text-sm">
+                        Rapport de Similitude : Pyramide du Louvre et Stupa Seokgatap
+                    </p>
+                </div>
+            </div>
+            
+            <div class="text-xs bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700 text-amber-300 flex items-center gap-2">
+                <i class="fa-solid fa-shapes"></i>
+                <span>닮음비 탐구 실습 / Laboratoire de Similitude Géométrique</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex-grow w-full">
+
+        <!-- Tab Navigation -->
+        <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-800 pb-3" id="tabContainer">
+            <button onclick="switchTab('louvre')" id="btn-louvre" class="tab-btn px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 flex items-center gap-2">
+                <i class="fa-solid fa-pyramid"></i>
+                <span>1. 루브르 피라미드 닮음비 <span class="fr-text block text-[10px] text-slate-800">Pyramides du Louvre</span></span>
+            </button>
+            <button onclick="switchTab('seokga')" id="btn-seokga" class="tab-btn px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-2">
+                <i class="fa-solid fa-monument"></i>
+                <span>2. 석가탑 층별 닮음 & 비례 <span class="fr-text block text-[10px] text-slate-400">Stupa Seokgatap & Proportions</span></span>
+            </button>
+            <button onclick="switchTab('comparison')" id="btn-comparison" class="tab-btn px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-2">
+                <i class="fa-solid fa-earth-amber"></i>
+                <span>3. 동서양 닮음비 구조 비교 <span class="fr-text block text-[10px] text-slate-400">Analyse & Comparaison</span></span>
+            </button>
+        </div>
+
+        <!-- TAB 1: 루브르 피라미드 닮음비 -->
+        <section id="tab-louvre" class="tab-content block space-y-6">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Louvre Controls & Math Explanation -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="border-l-4 border-amber-500 pl-3">
+                            <h2 class="text-xl font-bold text-amber-400">루브르 대형 피라미드와 소형 피라미드</h2>
+                            <p class="fr-text text-xs">Grandes et Petites Pyramides du Musée du Louvre</p>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            프랑스 루브르 박물관의 대형 유리 피라미드(높이 약 21m)와 주변 소형 피라미드(높이 약 5m)는 입체도형의 <strong>닮음(Similitude)</strong> 관계를 명확히 보여줍니다.
+                            대응하는 길이의 비가 일정할 때 두 입체도형은 닮음 관계에 있습니다.
+                        </p>
+
+                        <!-- Live Scale Factor Slider -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-amber-300">소형 피라미드 축척 비율 (Scale k): <span id="scale-k-val" class="text-emerald-400 font-bold font-mono">1 : 4.20</span></label>
+                            </div>
+                            <input type="range" id="pyramidScaleSlider" min="2.0" max="8.0" value="4.2" step="0.1" oninput="updatePyramidScale(this.value)" class="w-full accent-amber-500">
+                            
+                            <div class="text-xs space-y-2 font-mono bg-slate-900 p-3 rounded-lg border border-slate-800">
+                                <div class="flex justify-between border-b border-slate-800 pb-1">
+                                    <span class="text-slate-400">높이 비 (Rapport des hauteurs):</span>
+                                    <span class="text-amber-400 font-bold" id="h-ratio-text">21.0m : 5.0m (21 : 5)</span>
+                                </div>
+                                <div class="flex justify-between border-b border-slate-800 pb-1">
+                                    <span class="text-slate-400">밑면 변의 길이어 비 (Côté de base):</span>
+                                    <span class="text-sky-400 font-bold" id="base-ratio-text">35.0m : 8.33m</span>
+                                </div>
+                                <div class="flex justify-between border-b border-slate-800 pb-1">
+                                    <span class="text-slate-400">겉넓이의 비 (Rapport des aires):</span>
+                                    <span class="text-emerald-400 font-bold" id="area-ratio-text">17.64 : 1</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">부피의 비 (Rapport des volumes):</span>
+                                    <span class="text-purple-400 font-bold" id="volume-ratio-text">74.09 : 1</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-xs space-y-1">
+                            <div class="font-bold text-amber-300"><i class="fa-solid fa-lightbulb mr-1"></i> 닮음의 수학적 성질 (Propriétés)</div>
+                            <p class="text-slate-300">
+                                • 길이가 4.2배일 때,<br>
+                                • 겉넓이는 17.64배, 부피는 74.09배 증가합니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Louvre Interactive Visualizer -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="relative w-full h-[380px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                            <canvas id="louvreCanvas" class="w-full h-full"></canvas>
+                            <div class="absolute top-3 left-3 bg-slate-900/90 px-3 py-1.5 rounded-lg border border-slate-700 text-xs text-amber-300 font-mono">
+                                🏛️ Louvre Geometry Simulation
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2 text-center">
+                            📐 마우스/터치로 슬라이더를 조절하여 대형·소형 피라미드의 대응변 및 면적, 부피 변화를 확인해보세요.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: 불국사 석가탑의 닮음비 -->
+        <section id="tab-seokga" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Seokgatap Controls & Math Explanation -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="border-l-4 border-amber-500 pl-3">
+                            <h2 class="text-xl font-bold text-amber-400">불국사 석가탑의 층별 비례와 닮음비</h2>
+                            <p class="fr-text text-xs">Proportions et Similitude du Stupa Seokgatap de Bulguksa</p>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            통일신라 건축의 정수인 불국사 석가탑(석가여래상주설법탑)은 1층부터 3층까지 옥개석(지붕돌)과 탑신이 위로 올라갈수록 일정한 비례로 줄어들며 완벽한 시각적 안정감을 제공합니다.
+                        </p>
+
+                        <!-- Roof Dimensions Data Box -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                            <h3 class="text-xs font-bold text-amber-300 uppercase tracking-wider">
+                                📏 층별 옥개석(지붕) 너비 및 높이 측정 데이터
+                            </h3>
+
+                            <div class="space-y-2 text-xs font-mono">
+                                <div class="bg-slate-900 p-2.5 rounded border border-slate-800 flex justify-between items-center">
+                                    <span class="text-slate-300">• 1층 옥개석 (1er Étage):</span>
+                                    <span class="text-amber-400 font-bold">너비 5.02m / 높이 2.09m</span>
+                                </div>
+                                <div class="bg-slate-900 p-2.5 rounded border border-slate-800 flex justify-between items-center">
+                                    <span class="text-slate-300">• 2층 옥개석 (2e Étage):</span>
+                                    <span class="text-sky-400 font-bold">너비 4.20m / 높이 1.90m</span>
+                                </div>
+                                <div class="bg-slate-900 p-2.5 rounded border border-slate-800 flex justify-between items-center">
+                                    <span class="text-slate-300">• 3층 옥개석 (3e Étage):</span>
+                                    <span class="text-emerald-400 font-bold">너비 3.62m / 높이 1.71m</span>
+                                </div>
+                            </div>
+
+                            <!-- Calculated Proportional Ratios -->
+                            <div class="bg-slate-900/80 p-3 rounded-lg border border-emerald-500/30 space-y-1.5 text-xs">
+                                <div class="text-emerald-300 font-bold">비율 계산 (Calcul des Rapports)</div>
+                                <div class="flex justify-between text-slate-300">
+                                    <span>2층 / 1층 너비 비 (2e / 1er) :</span>
+                                    <span class="font-mono text-amber-300 font-bold">4.20 / 5.02 ≈ 0.837</span>
+                                </div>
+                                <div class="flex justify-between text-slate-300">
+                                    <span>3층 / 2층 너비 비 (3e / 2e) :</span>
+                                    <span class="font-mono text-sky-300 font-bold">3.62 / 4.20 ≈ 0.862</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 pt-1 border-t border-slate-800">
+                                    💡 약 0.84~0.86의 균일한 감소율을 적용하여 아래는 든든하게, 위는 경쾌하게 체감(漸減) 효과를 연출합니다.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
+                            <label class="text-slate-400 block mb-1">층별 강조 선택 / Mettre en évidence :</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="highlightSeokgaLayer(1)" id="layer-btn-1" class="py-1.5 bg-amber-500 text-slate-950 font-bold rounded text-xs">1층 (1er)</button>
+                                <button onclick="highlightSeokgaLayer(2)" id="layer-btn-2" class="py-1.5 bg-slate-800 text-slate-300 rounded text-xs">2층 (2e)</button>
+                                <button onclick="highlightSeokgaLayer(3)" id="layer-btn-3" class="py-1.5 bg-slate-800 text-slate-300 rounded text-xs">3층 (3e)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seokgatap Interactive Canvas -->
+                    <div class="lg:col-span-7 flex flex-col items-center">
+                        <div class="relative w-full h-[420px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                            <canvas id="seokgaCanvas" class="w-full h-full"></canvas>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2 text-center">
+                            🗿 불국사 석가탑의 기단부와 3층 탑신의 정교한 점진적 닮음 비례 구조
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: 동서양 닮음비 구조 비교 -->
+        <section id="tab-comparison" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl">
+                <div class="space-y-6">
+                    <div class="border-l-4 border-amber-500 pl-3">
+                        <h2 class="text-xl font-bold text-amber-400">동서양 문화유산의 닮음비와 수학적 보편성</h2>
+                        <p class="fr-text text-xs">Structure Géométrique et Universelle du Rapport de Similitude</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Louvre Card -->
+                        <div class="bg-slate-950 p-5 rounded-xl border border-sky-500/30 space-y-3">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h3 class="font-bold text-sky-300 text-base">🇫🇷 루브르 피라미드 (Pyramide du Louvre)</h3>
+                                <span class="text-xs bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded">현대 기하학 & 투명성 / Géométrie Moderne</span>
+                            </div>
+                            <ul class="text-xs text-slate-300 space-y-3 leading-relaxed">
+                                <li class="space-y-0.5">
+                                    <div>• <strong>완벽한 입체 닮음 (Similitude 3D)</strong>: 대형 피라미드와 소형 피라미드가 동일한 각도와 비례로 설계됨.</div>
+                                    <div class="fr-text text-[11px] pl-3">Similitude tridimensionnelle : La grande et la petite pyramide partagent les mêmes angles et proportions.</div>
+                                </li>
+                                <li class="space-y-0.5">
+                                    <div>• <strong>면적과 부피의 수량화</strong>: 길이가 4.2배일 때 겉넓이는 17.64배, 부피는 74.09배 증가하는 현대 수학적 원리 증명.</div>
+                                    <div class="fr-text text-[11px] pl-3">Quantification : Lorsque la longueur est de 4,2 fois, l'aire 증가 17,64 fois et le volume 74,09 fois.</div>
+                                </li>
+                                <li class="space-y-0.5">
+                                    <div>• <strong>시각적 조화</strong>: 박물관 중앙 광장의 넓은 공간감을 해치지 않으면서 채광과 동선을 확보.</div>
+                                    <div class="fr-text text-[11px] pl-3">Harmonie visuelle : Assure la lumière naturelle et la circulation sans encombrer la cour Napoléon.</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Seokgatap Card -->
+                        <div class="bg-slate-950 p-5 rounded-xl border border-amber-500/30 space-y-3">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h3 class="font-bold text-amber-300 text-base">🇰🇷 불국사 석가탑 (Stupa Seokgatap)</h3>
+                                <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">전통 석조 & 점진적 체감 / Stupa Traditionnel</span>
+                            </div>
+                            <ul class="text-xs text-slate-300 space-y-3 leading-relaxed">
+                                <li class="space-y-0.5">
+                                    <div>• <strong>점진적 감소 비례 (Diminution Progressive)</strong>: 1층, 2층, 3층으로 올라갈수록 일정 비율(약 0.84~0.86)로 너비와 높이가 축소됨.</div>
+                                    <div class="fr-text text-[11px] pl-3">Réduction progressive : La largeur et la hauteur diminuent avec un rapport constant (~0,84 - 0,86) à chaque étage.</div>
+                                </li>
+                                <li class="space-y-0.5">
+                                    <div>• <strong>구조적 안정성</strong>: 무게중심을 낮추어 지진과 풍해에 강한 석탑 공학 구조 실현.</div>
+                                    <div class="fr-text text-[11px] pl-3">Stabilité structurale : Abaisse le centre de gravité pour résister aux séismes et aux intempéries.</div>
+                                </li>
+                                <li class="space-y-0.5">
+                                    <div>• <strong>동양적 균형미</strong>: 완전한 동일 형태의 단순 축소가 아닌 각 층의 조형적 앙상블을 고려한 수학적 안목.</div>
+                                    <div class="fr-text text-[11px] pl-3">Esthétique orientale : Un ensemble sculptural harmonieux plutôt qu'une simple réduction mécanique.</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Similarity Converter Table -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <h4 class="text-sm font-bold text-slate-200 mb-3">
+                            📊 동서양 닮음비 및 기하학적 성질 핵심 요약 / Résumé du Rapport de Similitude
+                        </h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900 text-amber-400 border-b border-slate-800">
+                                        <th class="p-2.5">구분 <span class="fr-text text-[10px] block font-normal">Catégorie</span></th>
+                                        <th class="p-2.5">루브르 피라미드 <span class="fr-text text-[10px] block font-normal">Pyramide du Louvre</span></th>
+                                        <th class="p-2.5">불국사 석가탑 <span class="fr-text text-[10px] block font-normal">Stupa Seokgatap</span></th>
+                                        <th class="p-2.5">공통 수학적 원리 <span class="fr-text text-[10px] block font-normal">Principe Mathématique Commun</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800 text-slate-300">
+                                    <tr>
+                                        <td class="p-2.5 font-semibold text-white">
+                                            닮음비 설정
+                                            <span class="fr-text block text-[11px] text-slate-400 font-normal">Rapport de similitude</span>
+                                        </td>
+                                        <td class="p-2.5 font-mono text-sky-400">21m : 5m (≈ 4.2 : 1)</td>
+                                        <td class="p-2.5 font-mono text-amber-400">1층:2층:3층 (1 : 0.84 : 0.72)</td>
+                                        <td class="p-2.5 space-y-0.5">
+                                            <div>대응하는 변의 길이가 일정한 비율을 유지함</div>
+                                            <div class="fr-text text-[11px]">Les côtés correspondants conservent un rapport constant.</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-semibold text-white">
+                                            각의 크기 유지
+                                            <span class="fr-text block text-[11px] text-slate-400 font-normal">Conservation des angles</span>
+                                        </td>
+                                        <td class="p-2.5">경사각 51° 동일 유지</td>
+                                        <td class="p-2.5">옥개석 귀접기 및 앙경 각도 유지</td>
+                                        <td class="p-2.5 space-y-0.5">
+                                            <div>도형의 크기가 변해도 대응각의 크기는 변화 없음</div>
+                                            <div class="fr-text text-[11px]">Les angles correspondants restent inchangés quelle que soit la taille.</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-semibold text-white">
+                                            건축적 기능
+                                            <span class="fr-text block text-[11px] text-slate-400 font-normal">Fonction architecturale</span>
+                                        </td>
+                                        <td class="p-2.5">채광성 확보 및 입구 시각화</td>
+                                        <td class="p-2.5">하중 분산 및 석탑 상승감 극대화</td>
+                                        <td class="p-2.5 space-y-0.5">
+                                            <div>수학적 비례를 통한 시각적 안정감과 조형미 완성</div>
+                                            <div class="fr-text text-[11px]">Stabilité visuelle et beauté esthétique grâce aux proportions.</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        let currentTab = 'louvre';
+        let louvreCanvas, louvreCtx;
+        let seokgaCanvas, seokgaCtx;
+        let currentLouvreScaleK = 4.2;
+        let selectedSeokgaLayer = 1;
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+            const tabs = ['louvre', 'seokga', 'comparison'];
+            
+            tabs.forEach(id => {
+                const content = document.getElementById('tab-' + id);
+                const btn = document.getElementById('btn-' + id);
+                
+                if (content) {
+                    if (id === tabId) {
+                        content.classList.remove('hidden');
+                        content.classList.add('block');
+                    } else {
+                        content.classList.add('hidden');
+                        content.classList.remove('block');
+                    }
+                }
+                
+                if (btn) {
+                    const subtext = btn.querySelector('.fr-text');
+                    if (id === tabId) {
+                        btn.className = 'tab-btn px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 flex items-center gap-2';
+                        if (subtext) subtext.className = 'fr-text block text-[10px] text-slate-800';
+                    } else {
+                        btn.className = 'tab-btn px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-2';
+                        if (subtext) subtext.className = 'fr-text block text-[10px] text-slate-400';
+                    }
+                }
+            });
+
+            requestAnimationFrame(() => {
+                if (tabId === 'louvre') drawLouvreCanvas();
+                if (tabId === 'seokga') drawSeokgaCanvas();
+            });
+        }
+
+        function updatePyramidScale(val) {
+            currentLouvreScaleK = parseFloat(val);
+            const k = currentLouvreScaleK;
+            
+            const smallH = (21.0 / k).toFixed(2);
+            const smallBase = (35.0 / k).toFixed(2);
+            const areaRatio = (k * k).toFixed(2);
+            const volRatio = (k * k * k).toFixed(2);
+
+            document.getElementById('scale-k-val').innerText = `1 : ${k.toFixed(2)}`;
+            document.getElementById('h-ratio-text').innerText = `21.0m : ${smallH}m (ratio ${k.toFixed(1)})`;
+            document.getElementById('base-ratio-text').innerText = `35.0m : ${smallBase}m`;
+            document.getElementById('area-ratio-text').innerText = `${areaRatio} : 1`;
+            document.getElementById('volume-ratio-text').innerText = `${volRatio} : 1`;
+
+            drawLouvreCanvas();
+        }
+
+        function drawLouvreCanvas() {
+            louvreCanvas = document.getElementById('louvreCanvas');
+            if (!louvreCanvas) return;
+            louvreCtx = louvreCanvas.getContext('2d');
+
+            const rect = louvreCanvas.parentElement.getBoundingClientRect();
+            louvreCanvas.width = rect.width;
+            louvreCanvas.height = rect.height;
+
+            const w = louvreCanvas.width;
+            const h = louvreCanvas.height;
+            louvreCtx.clearRect(0, 0, w, h);
+
+            // Ground line
+            const groundY = h * 0.8;
+            louvreCtx.strokeStyle = '#334155';
+            louvreCtx.lineWidth = 2;
+            louvreCtx.beginPath();
+            louvreCtx.moveTo(0, groundY);
+            louvreCtx.lineTo(w, groundY);
+            louvreCtx.stroke();
+
+            // Main Louvre Pyramid (Height = 21m)
+            const mainH = h * 0.55;
+            const mainW = mainH * (35.0 / 21.0);
+            const mainX = w * 0.35;
+
+            // Draw Main Pyramid
+            louvreCtx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+            louvreCtx.strokeStyle = '#38bdf8';
+            louvreCtx.lineWidth = 3;
+
+            louvreCtx.beginPath();
+            louvreCtx.moveTo(mainX, groundY - mainH);
+            louvreCtx.lineTo(mainX - mainW / 2, groundY);
+            louvreCtx.lineTo(mainX + mainW / 2, groundY);
+            louvreCtx.closePath();
+            louvreCtx.fill();
+            louvreCtx.stroke();
+
+            // Glass grid lines for Main
+            louvreCtx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+            louvreCtx.lineWidth = 1;
+            for (let i = 1; i <= 4; i++) {
+                let ratio = i / 5;
+                let y = groundY - mainH * (1 - ratio);
+                let currentW = mainW * ratio;
+                louvreCtx.beginPath();
+                louvreCtx.moveTo(mainX - currentW / 2, y);
+                louvreCtx.lineTo(mainX + currentW / 2, y);
+                louvreCtx.stroke();
+            }
+
+            // Small Pyramid (Scale factor k)
+            const k = currentLouvreScaleK;
+            const smallH = mainH / k;
+            const smallW = mainW / k;
+            const smallX = w * 0.8;
+
+            louvreCtx.fillStyle = 'rgba(251, 191, 36, 0.2)';
+            louvreCtx.strokeStyle = '#fbbf24';
+            louvreCtx.lineWidth = 2.5;
+
+            louvreCtx.beginPath();
+            louvreCtx.moveTo(smallX, groundY - smallH);
+            louvreCtx.lineTo(smallX - smallW / 2, groundY);
+            louvreCtx.lineTo(smallX + smallW / 2, groundY);
+            louvreCtx.closePath();
+            louvreCtx.fill();
+            louvreCtx.stroke();
+
+            // Labels
+            louvreCtx.fillStyle = '#38bdf8';
+            louvreCtx.font = 'bold 12px Inter';
+            louvreCtx.fillText('대형 피라미드 (Grand)', mainX - 55, groundY - mainH - 12);
+            louvreCtx.fillText(`H = 21.0m, A = 35.0m`, mainX - 55, groundY - mainH + 5);
+
+            louvreCtx.fillStyle = '#fbbf24';
+            louvreCtx.fillText('소형 피라미드 (Petit)', smallX - 45, groundY - smallH - 12);
+            louvreCtx.fillText(`h = ${(21.0 / k).toFixed(1)}m`, smallX - 30, groundY - smallH + 5);
+        }
+
+        function highlightSeokgaLayer(layerNum) {
+            selectedSeokgaLayer = layerNum;
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`layer-btn-${i}`);
+                if (i === layerNum) {
+                    btn.className = 'py-1.5 bg-amber-500 text-slate-950 font-bold rounded text-xs';
+                } else {
+                    btn.className = 'py-1.5 bg-slate-800 text-slate-300 rounded text-xs';
+                }
+            }
+            drawSeokgaCanvas();
+        }
+
+        function drawSeokgaCanvas() {
+            seokgaCanvas = document.getElementById('seokgaCanvas');
+            if (!seokgaCanvas) return;
+            seokgaCtx = seokgaCanvas.getContext('2d');
+
+            const rect = seokgaCanvas.parentElement.getBoundingClientRect();
+            seokgaCanvas.width = rect.width;
+            seokgaCanvas.height = rect.height;
+
+            const w = seokgaCanvas.width;
+            const h = seokgaCanvas.height;
+            seokgaCtx.clearRect(0, 0, w, h);
+
+            const centerX = w * 0.5;
+            const baseY = h * 0.88;
+
+            // Dimensions scaled for canvas
+            const scale = h * 0.08;
+
+            // Base platform (기단부)
+            seokgaCtx.fillStyle = '#334155';
+            seokgaCtx.fillRect(centerX - 3.2 * scale, baseY - 0.8 * scale, 6.4 * scale, 0.8 * scale);
+            seokgaCtx.strokeStyle = '#64748b';
+            seokgaCtx.strokeRect(centerX - 3.2 * scale, baseY - 0.8 * scale, 6.4 * scale, 0.8 * scale);
+
+            // Layer 1 (5.02m roof)
+            const w1 = 5.02 * scale * 0.6;
+            const h1 = 2.09 * scale * 0.6;
+            const y1 = baseY - 0.8 * scale - h1;
+
+            drawPagodaStory(centerX, y1, w1, h1, 1, selectedSeokgaLayer === 1);
+
+            // Layer 2 (4.20m roof)
+            const w2 = 4.20 * scale * 0.6;
+            const h2 = 1.90 * scale * 0.6;
+            const y2 = y1 - h2;
+
+            drawPagodaStory(centerX, y2, w2, h2, 2, selectedSeokgaLayer === 2);
+
+            // Layer 3 (3.62m roof)
+            const w3 = 3.62 * scale * 0.6;
+            const h3 = 1.71 * scale * 0.6;
+            const y3 = y2 - h3;
+
+            drawPagodaStory(centerX, y3, w3, h3, 3, selectedSeokgaLayer === 3);
+
+            // Finial Top (상륜부)
+            seokgaCtx.fillStyle = '#f59e0b';
+            seokgaCtx.beginPath();
+            seokgaCtx.arc(centerX, y3 - 0.6 * scale, 0.3 * scale, 0, Math.PI * 2);
+            seokgaCtx.fill();
+
+            seokgaCtx.strokeStyle = '#f59e0b';
+            seokgaCtx.lineWidth = 2;
+            seokgaCtx.beginPath();
+            seokgaCtx.moveTo(centerX, y3);
+            seokgaCtx.lineTo(centerX, y3 - 1.2 * scale);
+            seokgaCtx.stroke();
+        }
+
+        function drawPagodaStory(cx, y, roofW, storyH, layerIndex, isHighlighted) {
+            seokgaCtx.save();
+
+            // Highlight border if selected
+            if (isHighlighted) {
+                seokgaCtx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+                seokgaCtx.strokeStyle = '#f59e0b';
+                seokgaCtx.lineWidth = 3;
+            } else {
+                seokgaCtx.fillStyle = 'rgba(203, 213, 225, 0.15)';
+                seokgaCtx.strokeStyle = '#94a3b8';
+                seokgaCtx.lineWidth = 1.5;
+            }
+
+            // Body Stone (탑신)
+            const bodyW = roofW * 0.55;
+            const bodyH = storyH * 0.5;
+            seokgaCtx.fillRect(cx - bodyW / 2, y + storyH - bodyH, bodyW, bodyH);
+            seokgaCtx.strokeRect(cx - bodyW / 2, y + storyH - bodyH, bodyW, bodyH);
+
+            // Roof Stone (옥개석 - Eaves slope)
+            seokgaCtx.beginPath();
+            seokgaCtx.moveTo(cx - roofW / 2, y + storyH - bodyH);
+            seokgaCtx.lineTo(cx + roofW / 2, y + storyH - bodyH);
+            seokgaCtx.lineTo(cx + roofW * 0.4, y);
+            seokgaCtx.lineTo(cx - roofW * 0.4, y);
+            seokgaCtx.closePath();
+            seokgaCtx.fill();
+            seokgaCtx.stroke();
+
+            // Label text
+            seokgaCtx.fillStyle = isHighlighted ? '#f59e0b' : '#cbd5e1';
+            seokgaCtx.font = 'bold 11px Inter';
+            const labelTexts = ['1층 (5.02m)', '2층 (4.20m)', '3층 (3.62m)'];
+            seokgaCtx.fillText(labelTexts[layerIndex - 1], cx + roofW / 2 + 10, y + storyH / 2);
+
+            seokgaCtx.restore();
+        }
+
+        window.onload = function() {
+            drawLouvreCanvas();
+            drawSeokgaCanvas();
+
+            window.addEventListener('resize', () => {
+                if (currentTab === 'louvre') drawLouvreCanvas();
+                if (currentTab === 'seokga') drawSeokgaCanvas();
+            });
+        };
+    </script>
+</body>
+</html>
